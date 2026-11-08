@@ -246,43 +246,42 @@ plotClusters(aligned_JSSCSSC );
 set(gca, 'XTick', [], 'YTick', []);
 plotClusters(gt_ids);
 set(gca, 'XTick', [], 'YTick', []);
-%% Temporal subspace clustering gradient l02norm GTSC
+%% SGSR
 betaD = 0.01;
 lambda = 0.0001;
 rho = 0.01;  
 T_ss = 4;
 tol = 1e-4;
-maxiter_ii=200;
+maxiter_ii=500;
 tic;
-% [BTSC,ETSC,C_GTSC,time_GTSC,chgC_hist] = ...
-%     GTSC_PAMcutSSC(X,betaD,lambda,0,rho,T_ss,tol,maxiter_ii);
+% [BTSC,ETSC,C_SGSR,time_SGSR,chgC_hist] = SGSR(X,betaD,lambda,0,rho,T_ss,tol,maxiter_ii);
 
-[BTSC,ETSC,C_GTSC,time_GTSC] =GTSC_PAMcutSSC(X,betaD,lambda,0,rho,T_ss,tol,maxiter_ii);
-times.GTSC = toc;
-% [BTSC,ETSC,C_GTSC,time_GTSC] = GSTSC_PAMcutSSC(X,betaC,betaD,lambda,0,rho,T_kk,T_ss,tol,maxiter_ii);
+[BTSC,ETSC,C_SGSR,time_SGSR] =SGSR(X,betaD,lambda,0,rho,T_ss,tol,maxiter_ii);
+times.SGSR = toc;
+% [BTSC,ETSC,C_SGSR,time_SGSR] = SGSR_ablation(X,betaC,betaD,lambda,0,rho,T_kk,T_ss,tol,maxiter_ii);
 
-W_GTSC =(abs(C_GTSC) + abs(C_GTSC'))/2;   %%%  affinity matrix
-Y_GTSC = SpectralClustering1(W_GTSC, nCluster);
-%EvaluationJSSC
-accr_GTSC  = evalAccuracy(label, Y_GTSC);
-nmi_GTSC  = nmi_new(Y_GTSC, label);
+W_SGSR =(abs(C_SGSR) + abs(C_SGSR'))/2;   %%%  affinity matrix
+Y_SGSR = SpectralClustering1(W_SGSR, nCluster);
+
+accr_SGSR  = evalAccuracy(label, Y_SGSR);
+nmi_SGSR  = nmi_new(Y_SGSR label);
 
 [~,~,gt_ids]   = unique(label);
-W = NormalizeFea(W_GTSC, 1);
+W = NormalizeFea(W_SGSR, 1);
 imagesc(W);
 movegui(imagesc(W), 'center');
 set(gca, 'XTick', [], 'YTick', []);
                         
 % colormap('parula');
-aligned_GTSC = align_labels_to_gt_vote(Y_GTSC,gt_ids);
-plotClusters(aligned_GTSC);
+aligned_SGSR = align_labels_to_gt_vote(Y_SGSR,gt_ids);
+plotClusters(aligned_SGSR);
 set(gca, 'XTick', [], 'YTick', []);
 plotClusters(gt_ids);
 set(gca, 'XTick', [], 'YTick', []);
-% save('GTSC_convergence.mat','chgC_hist');
-%% ========== 打印各方法运行时间 ==========
+% save('SGSR_convergence_YALEB10.mat','chgC_hist');
+%%
 fprintf('\n========== Running Time Summary (dataset: %s) ==========\n', 'YALEB10');
-method_names = {'lrr','ssc','spatSC','osc','tsc','FPEMS_WOSC','tsc_sc','AGCSC','JSSCSSC','GTSC'};
+method_names = {'lrr','ssc','spatSC','osc','tsc','FPEMS_WOSC','tsc_sc','AGCSC','JSSCSSC','SGSR'};
 for i = 1:numel(method_names)
     name = method_names{i};
     if isfield(times, name)
